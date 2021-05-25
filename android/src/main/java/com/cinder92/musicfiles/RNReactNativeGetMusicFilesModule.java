@@ -144,7 +144,7 @@ public class RNReactNativeGetMusicFilesModule extends ReactContextBaseJavaModule
         }
 
         String sortOrder = MediaStore.Audio.Media.TITLE + " ASC";
-        Cursor musicCursor = musicResolver.query(musicUri, STAR, selection, null, sortOrder);
+        Cursor musicCursor = musicResolver.query(musicUri, null, selection, null, sortOrder);
 
         //Log.i("Tienes => ",Integer.toString(musicCursor.getCount()));
 
