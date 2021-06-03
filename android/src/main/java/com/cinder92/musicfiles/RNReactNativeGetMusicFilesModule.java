@@ -217,7 +217,7 @@ public class RNReactNativeGetMusicFilesModule extends ReactContextBaseJavaModule
 
                                 if (getGenreFromSong) {
                                     //String songGenre = mmr.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_GENRE);
-                                    items.putString("genre",  mmr.extractMetadata(mmr.METADATA_KEY_GENRE);
+                                    items.putString("genre",  mmr.extractMetadata(mmr.METADATA_KEY_GENRE));
                                 }
 
                                 if (getDurationFromSong) {
@@ -229,7 +229,7 @@ public class RNReactNativeGetMusicFilesModule extends ReactContextBaseJavaModule
                                 }
 
                                 if (getIsDownloadFromSong) {
-                                    items.putBoolean("isDownload", musicCursor.getBoolean(musicCursor.getColumnIndexOrThrow(MediaStore.Audio.Media.IS_DOWNLOAD));
+                                    items.putBoolean("isDownload", musicCursor.getBoolean(musicCursor.getColumnIndexOrThrow(MediaStore.Audio.Media.IS_DOWNLOAD)));
                                 }
 
                                 if (getDateFromSong) {
