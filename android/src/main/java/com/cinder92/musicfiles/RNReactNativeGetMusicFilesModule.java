@@ -47,6 +47,8 @@ public class RNReactNativeGetMusicFilesModule extends ReactContextBaseJavaModule
     private boolean getDateFromSong = false;
     private boolean getCommentsFromSong = false;
     private boolean getLyricsFromSong = false;
+    private boolean getDisplayNameFromSong = false;
+    private boolean getIsDownloadFromSong = false;
     private int minimumSongDuration = 0;
     private int songsPerIteration = 0;
     private int version = Build.VERSION.SDK_INT;
@@ -64,8 +66,6 @@ public class RNReactNativeGetMusicFilesModule extends ReactContextBaseJavaModule
 
     @ReactMethod
     public void getAll(ReadableMap options, final Callback successCallback, final Callback errorCallback) {
-
-
         if (options.hasKey("blured")) {
             getBluredImages = options.getBoolean("blured");
         }
@@ -99,6 +99,14 @@ public class RNReactNativeGetMusicFilesModule extends ReactContextBaseJavaModule
             getAlbumFromSong = options.getBoolean("album");
         }
 
+        if (options.hasKey("displayName")) {
+            getDisplayNameFromSong = options.getBoolean("displayName");
+        }
+
+        if (options.hasKey("isDownload")) {
+            getIsDownloadFromSong = options.getBoolean("isDownload");
+        }
+
         /*if (options.hasKey("date")) {
             getDateFromSong = options.getBoolean("date");
         }
@@ -119,9 +127,9 @@ public class RNReactNativeGetMusicFilesModule extends ReactContextBaseJavaModule
             minimumSongDuration = 0;
         }
 
-        if(version <= 19){
+        if (version <= 19){
             getSongs(successCallback,errorCallback);
-        }else{
+        } else {
             Thread bgThread = new Thread(null,
                     new Runnable() {
                         @Override
@@ -171,8 +179,7 @@ public class RNReactNativeGetMusicFilesModule extends ReactContextBaseJavaModule
                             long songId = musicCursor.getLong(idColumn);
 
                             if (getIDFromSong) {
-                                String str = String.valueOf(songId);
-                                items.putString("id", str);
+                                items.putString("id", String.valueOf(songId));
                             }
 
                             String songPath = musicCursor.getString(musicCursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA));
@@ -191,43 +198,46 @@ public class RNReactNativeGetMusicFilesModule extends ReactContextBaseJavaModule
                                 mmr.setDataSource(songPath);
 
                                 //String songTimeDuration = mmr.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_DURATION);
-                                String songTimeDuration = mmr.extractMetadata(mmr.METADATA_KEY_DURATION);
                                 int songIntDuration = Integer.parseInt(songTimeDuration);
 
                                 if (getAlbumFromSong) {
-                                    String songAlbum = mmr.extractMetadata(mmr.METADATA_KEY_ALBUM);
                                     //String songAlbum = mmr.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_ALBUM);
-                                    items.putString("album", songAlbum);
+                                    items.putString("album", mmr.extractMetadata(mmr.METADATA_KEY_ALBUM));
                                 }
 
                                 if (getArtistFromSong) {
-                                    String songArtist = mmr.extractMetadata(mmr.METADATA_KEY_ARTIST);
                                     //String songArtist = mmr.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_ARTIST);
-                                    items.putString("author", songArtist);
+                                    items.putString("artist", mmr.extractMetadata(mmr.METADATA_KEY_ARTIST));
                                 }
 
-
                                 if (getTitleFromSong) {
-                                    String songTitle = mmr.extractMetadata(mmr.METADATA_KEY_TITLE);
                                     //String songTitle = mmr.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_TITLE);
-                                    items.putString("title", songTitle);
+                                    items.putString("title", mmr.extractMetadata(mmr.METADATA_KEY_TITLE));
                                 }
 
                                 if (getGenreFromSong) {
-                                    String songGenre = mmr.extractMetadata(mmr.METADATA_KEY_GENRE);
                                     //String songGenre = mmr.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_GENRE);
-                                    items.putString("genre", songGenre);
+                                    items.putString("genre",  mmr.extractMetadata(mmr.METADATA_KEY_GENRE);
                                 }
 
                                 if (getDurationFromSong) {
-                                    items.putString("duration", songTimeDuration);
+                                    items.putString("duration", mmr.extractMetadata(mmr.METADATA_KEY_DURATION));
+                                }
+
+                                if (getDisplayNameFromSong) {
+                                    items.putString("displayName", musicCursor.getString(musicCursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DISPLAY_NAME)));
+                                }
+
+                                if (getIsDownloadFromSong) {
+                                    items.putBoolean("isDownload", musicCursor.getBoolean(musicCursor.getColumnIndexOrThrow(MediaStore.Audio.Media.IS_DOWNLOAD));
+                                }
+
+                                if (getDateFromSong) {
+                                    items.putString("date", mmr.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_DATE));
                                 }
 
                                 /*if (getCommentsFromSong) {
                                     items.putString("comments", mmr.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_COMMENT));
-                                }
-                                if (getDateFromSong) {
-                                    items.putString("date", mmr.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_DATE));
                                 }
                                 if (getLyricsFromSong) {
                                     //String lyrics = mp3file.getID3v2Tag().getSongLyric();
@@ -329,6 +339,57 @@ public class RNReactNativeGetMusicFilesModule extends ReactContextBaseJavaModule
         }else{
             Log.i("com.tests","Something get wrong with musicCursor");
             errorCallback.invoke("Something get wrong with musicCursor");
+        }
+    }
+
+    @ReactMethod
+    public void addNewPlaylist(ReadableMap options, final Callback successCallback, final Callback errorCallback) {
+        if (options.hasKey("playlistId") && options.hasKey("audioId")) {
+            addNewPlaylist((long)options.getDouble("playlistId"), options.getString("audioId"), successCallback, errorCallback);
+        }
+    }
+
+    private void addNewPlaylist(String newplaylist, final Callback successCallback, final Callback errorCallback) {
+        ContentResolver resolver = getCurrentActivity().getContentResolver();;
+        ContentValues values = new ContentValues(1);
+        values.put(MediaStore.Audio.Playlists.NAME, newplaylist);
+        try {
+            resolver.insert(uri, values);
+            successCallback.invoke(true);
+        } catch (RuntimeException e) {
+            errorCallback.invoke(e.toString());
+        } catch (Exception e) {
+            errorCallback.invoke(e.getMessage());
+        } finally {
+            mmr.release();
+        }
+    }
+
+    @ReactMethod
+    public void addSoundToPlaylist(ReadableMap options, final Callback successCallback, final Callback errorCallback) {
+        if (options.hasKey("name")) {
+            addSoundToPlaylist(options.getString("name"));
+        }
+    }
+
+    private void addSoundToPlaylist(long playlistId, String audioId, final Callback successCallback, final Callback errorCallback) {
+        Uri uri = MediaStore.Audio.Playlists.Members.getContentUri(
+            "external", playlistId);
+        ContentResolver resolver = context.getContentResolver();
+        ContentValues values = new ContentValues();
+            // values.put(MediaStore.Audio.Playlists.Members.PLAY_ORDER, pos);
+            values.put(MediaStore.Audio.Playlists.Members.AUDIO_ID, audioId);
+            values.put(MediaStore.Audio.Playlists.Members.PLAYLIST_ID,
+                    playlistId);
+        try {
+            resolver.insert(uri, values);
+            successCallback.invoke(true);
+        } catch (RuntimeException e) {
+            errorCallback.invoke(e.toString());
+        } catch (Exception e) {
+            errorCallback.invoke(e.getMessage());
+        } finally {
+            mmr.release();
         }
     }
 
