@@ -16,7 +16,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import android.util.Log;
 import android.content.ContentValues;
 
@@ -199,7 +199,7 @@ public class RNReactNativeGetMusicFilesModule extends ReactContextBaseJavaModule
                                 mmr.setDataSource(songPath);
 
                                 //String songTimeDuration = mmr.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_DURATION);
-                                int songIntDuration = Integer.parseInt(songTimeDuration);
+                                // int songIntDuration = Integer.parseInt(songTimeDuration);
 
                                 if (getAlbumFromSong) {
                                     //String songAlbum = mmr.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_ALBUM);
@@ -229,13 +229,13 @@ public class RNReactNativeGetMusicFilesModule extends ReactContextBaseJavaModule
                                     items.putString("displayName", musicCursor.getString(musicCursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DISPLAY_NAME)));
                                 }
 
-                                if (getIsDownloadFromSong) {
-                                    items.putBoolean("isDownload", musicCursor.getBoolean(musicCursor.getColumnIndexOrThrow(MediaStore.Audio.Media.IS_DOWNLOAD)));
-                                }
+                                // if (getIsDownloadFromSong) {
+                                //     items.putBoolean("isDownload", musicCursor.getString(musicCursor.getColumnIndexOrThrow(MediaStore.Audio.Media.IS_DOWNLOAD)));
+                                // }
 
-                                if (getDateFromSong) {
-                                    items.putString("date", mmr.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_DATE));
-                                }
+                                // if (getDateFromSong) {
+                                //     items.putString("date", mmr.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_DATE));
+                                // }
 
                                 /*if (getCommentsFromSong) {
                                     items.putString("comments", mmr.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_COMMENT));
@@ -352,11 +352,21 @@ public class RNReactNativeGetMusicFilesModule extends ReactContextBaseJavaModule
 
     private void addNewPlaylist(String name, final Callback successCallback, final Callback errorCallback) {
         ContentResolver resolver = getCurrentActivity().getContentResolver();
-        ContentValues values = new ContentValues(1);
-        values.put(MediaStore.Audio.Playlists.NAME, name);
+        final Uri uri = MediaStore.Audio.Playlists.EXTERNAL_CONTENT_URI;
+        final String[] columns = { MediaStore.Audio.Playlists._ID, MediaStore.Audio.Playlists.NAME };
+        final Cursor playlistCursor = resolver.query(uri, columns, null, null, null);
         try {
-            resolver.insert(uri, values);
-            successCallback.invoke(true);
+            if (playlistCursor != null && playlistCursor.moveToFirst()) {
+                WritableArray jsonArray = new WritableNativeArray();
+                WritableMap items;
+                if (playlistCursor.getCount() > 0) {
+                    items = new WritableNativeMap();
+                    items.putString("playlistId", playlistCursor.getString(playlistCursor.getColumnIndexOrThrow(MediaStore.Audio.Playlists.Members.PLAYLIST_ID)));
+                    items.putString("playOrder", playlistCursor.getString(playlistCursor.getColumnIndexOrThrow(MediaStore.Audio.Playlists.Members.PLAY_ORDER)));
+                    jsonArray.pushMap(items);
+                }
+                successCallback.invoke(jsonArray);
+            }
         } catch (RuntimeException e) {
             errorCallback.invoke(e.toString());
         } catch (Exception e) {
