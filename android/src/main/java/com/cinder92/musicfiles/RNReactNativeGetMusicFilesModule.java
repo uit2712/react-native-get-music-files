@@ -18,7 +18,7 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.util.Log;
-import android.content;
+import android.content.ContentValues;
 
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableArray;
@@ -345,15 +345,15 @@ public class RNReactNativeGetMusicFilesModule extends ReactContextBaseJavaModule
 
     @ReactMethod
     public void addNewPlaylist(ReadableMap options, final Callback successCallback, final Callback errorCallback) {
-        if (options.hasKey("playlistId") && options.hasKey("audioId")) {
-            addNewPlaylist((long)options.getDouble("playlistId"), options.getString("audioId"), successCallback, errorCallback);
+        if (options.hasKey("name")) {
+            addNewPlaylist(options.getString("name"), successCallback, errorCallback);
         }
     }
 
-    private void addNewPlaylist(String newplaylist, final Callback successCallback, final Callback errorCallback) {
-        ContentResolver resolver = getCurrentActivity().getContentResolver();;
+    private void addNewPlaylist(String name, final Callback successCallback, final Callback errorCallback) {
+        ContentResolver resolver = getCurrentActivity().getContentResolver();
         ContentValues values = new ContentValues(1);
-        values.put(MediaStore.Audio.Playlists.NAME, newplaylist);
+        values.put(MediaStore.Audio.Playlists.NAME, name);
         try {
             resolver.insert(uri, values);
             successCallback.invoke(true);
@@ -367,15 +367,15 @@ public class RNReactNativeGetMusicFilesModule extends ReactContextBaseJavaModule
 
     @ReactMethod
     public void addSoundToPlaylist(ReadableMap options, final Callback successCallback, final Callback errorCallback) {
-        if (options.hasKey("name")) {
-            addSoundToPlaylist(options.getString("name"));
+        if (options.hasKey("playlistId") && options.hasKey("audioId")) {
+            addSoundToPlaylist((long)options.getDouble("playlistId"), options.getString("audioId"), successCallback, errorCallback);
         }
     }
 
     private void addSoundToPlaylist(long playlistId, String audioId, final Callback successCallback, final Callback errorCallback) {
         Uri uri = MediaStore.Audio.Playlists.Members.getContentUri(
             "external", playlistId);
-        ContentResolver resolver = context.getContentResolver();
+        ContentResolver resolver = getCurrentActivity().getContentResolver();
         ContentValues values = new ContentValues();
             // values.put(MediaStore.Audio.Playlists.Members.PLAY_ORDER, pos);
             values.put(MediaStore.Audio.Playlists.Members.AUDIO_ID, audioId);
