@@ -361,7 +361,6 @@ public class RNReactNativeGetMusicFilesModule extends ReactContextBaseJavaModule
         } catch (Exception e) {
             errorCallback.invoke(e.getMessage());
         } finally {
-            mmr.release();
         }
     }
 
@@ -389,7 +388,6 @@ public class RNReactNativeGetMusicFilesModule extends ReactContextBaseJavaModule
         } catch (Exception e) {
             errorCallback.invoke(e.getMessage());
         } finally {
-            mmr.release();
         }
     }
 
