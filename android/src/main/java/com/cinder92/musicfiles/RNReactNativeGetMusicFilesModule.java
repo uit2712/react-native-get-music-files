@@ -50,6 +50,8 @@ public class RNReactNativeGetMusicFilesModule extends ReactContextBaseJavaModule
     private boolean getLyricsFromSong = false;
     private boolean getDisplayNameFromSong = false;
     private boolean getIsDownloadFromSong = false;
+    private boolean getAlbumArtistFromSong = false;
+    private boolean getAuthorFromSong = false;
     private int minimumSongDuration = 0;
     private int songsPerIteration = 0;
     private int version = Build.VERSION.SDK_INT;
@@ -71,6 +73,9 @@ public class RNReactNativeGetMusicFilesModule extends ReactContextBaseJavaModule
             getBluredImages = options.getBoolean("blured");
         }
 
+        if (options.hasKey("author")) {
+            getAuthorFromSong = options.getBoolean("author");
+        }
 
         if (options.hasKey("artist")) {
             getArtistFromSong = options.getBoolean("artist");
@@ -106,6 +111,10 @@ public class RNReactNativeGetMusicFilesModule extends ReactContextBaseJavaModule
 
         if (options.hasKey("isDownload")) {
             getIsDownloadFromSong = options.getBoolean("isDownload");
+        }
+
+        if (options.hasKey("albumArtist")) {
+            getAlbumArtistFromSong = options.getBoolean("albumArtist");
         }
 
         /*if (options.hasKey("date")) {
@@ -202,23 +211,45 @@ public class RNReactNativeGetMusicFilesModule extends ReactContextBaseJavaModule
                                 // int songIntDuration = Integer.parseInt(songTimeDuration);
 
                                 if (getAlbumFromSong) {
-                                    //String songAlbum = mmr.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_ALBUM);
-                                    items.putString("album", mmr.extractMetadata(mmr.METADATA_KEY_ALBUM));
+                                    String album = mmr.extractMetadata(mmr.METADATA_KEY_ALBUM);
+                                    if (album != null) {
+                                        items.putString("album", album);
+                                    }
                                 }
 
                                 if (getArtistFromSong) {
-                                    //String songArtist = mmr.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_ARTIST);
-                                    items.putString("artist", mmr.extractMetadata(mmr.METADATA_KEY_ARTIST));
+                                    String artist = mmr.extractMetadata(mmr.METADATA_KEY_ARTIST);
+                                    if (artist != null) {
+                                        items.putString("artist", artist);
+                                    }
+                                }
+
+                                if (getAuthorFromSong) {
+                                    String author = mmr.extractMetadata(mmr.METADATA_KEY_AUTHOR);
+                                    if (author != null) {
+                                        items.putString("author", author);
+                                    }
+                                }
+
+                                if (getAlbumArtistFromSong) {
+                                    String albumArtist = mmr.extractMetadata(mmr.METADATA_KEY_ALBUMARTIST);
+                                    if (albumArtist != null) {
+                                        items.putString("albumArtist", albumArtist);
+                                    }
                                 }
 
                                 if (getTitleFromSong) {
-                                    //String songTitle = mmr.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_TITLE);
-                                    items.putString("title", mmr.extractMetadata(mmr.METADATA_KEY_TITLE));
+                                    String title = musicCursor.getString(musicCursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE));
+                                    if (title != null) {
+                                        items.putString("title", title);
+                                    }
                                 }
 
                                 if (getGenreFromSong) {
-                                    //String songGenre = mmr.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_GENRE);
-                                    items.putString("genre",  mmr.extractMetadata(mmr.METADATA_KEY_GENRE));
+                                    String genre = mmr.extractMetadata(mmr.METADATA_KEY_GENRE);
+                                    if (genre != null) {
+                                        items.putString("genre", genre);
+                                    }
                                 }
 
                                 if (getDurationFromSong) {
@@ -226,7 +257,10 @@ public class RNReactNativeGetMusicFilesModule extends ReactContextBaseJavaModule
                                 }
 
                                 if (getDisplayNameFromSong) {
-                                    items.putString("displayName", musicCursor.getString(musicCursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DISPLAY_NAME)));
+                                    String displayName = musicCursor.getString(musicCursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DISPLAY_NAME));
+                                    if (displayName != null) {
+                                        items.putString("displayName", displayName);
+                                    }
                                 }
 
                                 // if (getIsDownloadFromSong) {
