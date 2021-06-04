@@ -514,8 +514,14 @@ public class RNReactNativeGetMusicFilesModule extends ReactContextBaseJavaModule
         WritableMap item = new WritableNativeMap();
         item.putString("id", String.valueOf(cursor.getLong(0)));
         item.putString("album", String.valueOf(cursor.getString(1)));
-        item.putString("author", String.valueOf(cursor.getString(2)));
-        item.putString("cover", String.valueOf(cursor.getString(3)));
+        String author = cursor.getString(2);
+        if (author != null) {
+            item.putString("author", author);
+        }
+        String cover = cursor.getString(3);
+        if (cover != null) {
+            item.putString("cover", cover);
+        }
         item.putString("numberOfSongs", String.valueOf(cursor.getString(4)));
         return item;
     }
@@ -566,10 +572,10 @@ public class RNReactNativeGetMusicFilesModule extends ReactContextBaseJavaModule
     private WritableMap getPlaylistsData(Cursor cursor) {
         WritableMap item = new WritableNativeMap();
         item.putString("id", String.valueOf(cursor.getLong(0)));
-        item.putString("numberOfSongs", String.valueOf(cursor.getString(1)));
-        item.putString("name", String.valueOf(cursor.getString(2)));
-        item.putString("dateAdded", String.valueOf(cursor.getString(3)));
-        item.putString("dateModified", String.valueOf(cursor.getString(4)));
+        item.putString("numberOfSongs", cursor.getString(1));
+        item.putString("name", cursor.getString(2));
+        item.putString("dateAdded", cursor.getString(3));
+        item.putString("dateModified", cursor.getString(4));
         return item;
     }
 
