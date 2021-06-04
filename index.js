@@ -288,6 +288,29 @@
             }
         });
     },
+    /**
+     * @function
+     * @async
+     * @param {Object} options
+     * @param {string} [options.artist]
+     * @returns {Promise<Array<Album>>}
+     */
+ 
+    getPlaylists(options = {}) {
+        return new Promise((resolve, reject) => {
+            if (Platform.OS === "android") {
+                RNReactNativeGetMusicFiles.getPlaylists(
+                    options,
+                    albums => {
+                        resolve(albums);
+                    },
+                    error => {
+                        resolve(error);
+                    }
+                );
+            }
+        });
+    },
  }
  
  export default MusicFiles;
