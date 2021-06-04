@@ -265,7 +265,29 @@ const MusicFiles = {
                 });
             }
         });
-    }
+    },
+    /**
+     * @function
+     * @async
+     * @param {Object} options
+     * @returns {Promise<Array<Artist>>}
+     */
+
+    getArtists(options = {}) {
+        return new Promise((resolve, reject) => {
+            if (Platform.OS === "android") {
+                RNReactNativeGetMusicFiles.getArtists(
+                    options,
+                    albums => {
+                        resolve(albums);
+                    },
+                    error => {
+                        resolve(error);
+                    }
+                );
+            }
+        });
+    },
 }
 
 export default MusicFiles;

@@ -436,6 +436,36 @@ public class RNReactNativeGetMusicFilesModule extends ReactContextBaseJavaModule
         }
     }
 
+    @ReactMethod
+    public void getArtists(ReadableMap options, final Callback successCallback, final Callback errorCallback) {
+
+        WritableArray jsonArray = new WritableNativeArray();
+
+        String[] projection = new String[] { MediaStore.Audio.Artists.ARTIST_KEY, MediaStore.Audio.Artists.ARTIST,
+                MediaStore.Audio.Artists.NUMBER_OF_ALBUMS, MediaStore.Audio.Artists.NUMBER_OF_TRACKS,
+                MediaStore.Audio.Artists._ID };
+        Cursor cursor = getCurrentActivity().getContentResolver().query(MediaStore.Audio.Artists.EXTERNAL_CONTENT_URI,
+                projection, null, null, null);
+        if (cursor != null && cursor.getCount() > 0) {
+            cursor.moveToFirst();
+            do {
+                WritableMap item = new WritableNativeMap();
+                item.putString("key", String.valueOf(cursor.getString(0)));
+                item.putString("artist", String.valueOf(cursor.getString(1)));
+                item.putString("numberOfAlbums", String.valueOf(cursor.getString(2)));
+                item.putString("numberOfSongs", String.valueOf(cursor.getString(3)));
+                item.putString("id", String.valueOf(cursor.getString(4)));
+                jsonArray.pushMap(item);
+            } while (cursor.moveToNext());
+        } else {
+            String msg = "cursor is either null or empty ";
+            Log.e("Musica", msg);
+        }
+        Log.e("MusicaAlbums", String.valueOf(jsonArray));
+        cursor.close();
+        successCallback.invoke(jsonArray);
+    }
+
     private void sendEvent(ReactContext reactContext,
                            String eventName,
                            @Nullable WritableMap params) {
