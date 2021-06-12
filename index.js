@@ -27,9 +27,9 @@
  * @property {string} id
  */
 
- import { NativeModules, Platform } from "react-native";
+import { NativeModules, Platform } from "react-native";
 
- const { RNAndroidStore, RNReactNativeGetMusicFiles } = NativeModules;
+const { RNAndroidStore, RNReactNativeGetMusicFiles } = NativeModules;
  /**
   * @class RNAndroidAudioStore
   */
@@ -308,6 +308,26 @@
                         resolve(error);
                     }
                 );
+            }
+        });
+    },
+    /** For Android only */
+    /**
+     * @function
+     * @async
+     * @param {Object} options
+     * @param {string} [options.artistId]
+     * @param {string} [options.albumId]
+     * @returns {Promise<Array<Album>>}
+     */
+     getListSongs(options) {
+        return new Promise((resolve, reject) => {
+            if (Platform.OS === "android") {
+                RNReactNativeGetMusicFiles.getListSongs(options, (tracks) => {
+                    resolve(tracks);
+                }, (error) => {
+                    resolve(error);
+                });
             }
         });
     },
