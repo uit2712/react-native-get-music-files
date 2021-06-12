@@ -263,7 +263,11 @@ public class RNReactNativeGetMusicFilesModule extends ReactContextBaseJavaModule
             items.putString("path", songPath);
             items.putString("fileName", fileName);
 
-            mmr.setDataSource(songPath);
+            try {
+                mmr.setDataSource(songPath);
+            } catch (Exception e) {
+                Log.e("embedImage","No embed image");
+            }
 
             //String songTimeDuration = mmr.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_DURATION);
             // int songIntDuration = Integer.parseInt(songTimeDuration);
@@ -573,33 +577,44 @@ public class RNReactNativeGetMusicFilesModule extends ReactContextBaseJavaModule
 
     @ReactMethod
     public void getListSongs(ReadableMap options, final Callback successCallback, final Callback errorCallback) {
+        ContentResolver musicResolver = getCurrentActivity().getContentResolver();
+        Uri musicUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
         WritableArray jsonArray = new WritableNativeArray();
-        if (options.hasKey("albumId") || options.hasKey("artistId")) {
-            String selection = "is_music != 0";
-            if (options.hasKey("albumId")) {
-                selection = selection + " and album_id = " + options.getString("albumId");
-            }
-            if (options.hasKey("artistId")) {
-                selection = selection + " and artist_id = " + options.getString("artistId");
-            }
+        MediaMetadataRetriever mmr = new MediaMetadataRetriever();
+        try {
+            if (options.hasKey("albumId") || options.hasKey("artistId")) {
+                String selection = "is_music != 0";
+                if (options.hasKey("albumId")) {
+                    selection = selection + " and album_id = " + options.getString("albumId");
+                }
+                if (options.hasKey("artistId")) {
+                    selection = selection + " and artist_id = " + options.getString("artistId");
+                }
 
-            Cursor cursor = getCurrentActivity().getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                    null, selection, null, null);
-            if (cursor != null && cursor.getCount() > 0) {
-                MediaMetadataRetriever mmr = new MediaMetadataRetriever();
-                cursor.moveToFirst();
-                do {
-                    WritableNativeMap item = getSongsData(cursor, mmr);
-                    jsonArray.pushMap(item);
-                } while (cursor.moveToNext());
-            } else {
-                String msg = "cursor is either null or empty ";
-                Log.e("Musica", msg);
+                Cursor cursor = musicResolver.query(musicUri, null, selection, null, null);
+                if (cursor != null && cursor.getCount() > 0) {
+                    cursor.moveToFirst();
+                    do {
+                        WritableNativeMap item = getSongsData(cursor, mmr);
+                        jsonArray.pushMap(item);
+                    } while (cursor.moveToNext());
+                } else {
+                    String msg = "cursor is either null or empty ";
+                    Log.e("Musica", msg);
+                }
+                Log.e("MusicaAlbums", String.valueOf(jsonArray));
+                cursor.close();
+                successCallback.invoke(jsonArray);
             }
-            Log.e("MusicaAlbums", String.valueOf(jsonArray));
-            cursor.close();
-            successCallback.invoke(jsonArray);
+        } catch (RuntimeException e) {
+            errorCallback.invoke(e.toString());
+        } catch (Exception e) {
+            errorCallback.invoke(e.getMessage());
+        } finally {
+            mmr.release();
         }
+        
+        
     }
 
     private void sendEvent(ReactContext reactContext,
