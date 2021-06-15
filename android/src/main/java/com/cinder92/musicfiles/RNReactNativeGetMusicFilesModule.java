@@ -19,6 +19,7 @@ import android.provider.MediaStore;
 import androidx.annotation.Nullable;
 import android.util.Log;
 import android.content.ContentValues;
+import android.content.ContentUris;
 
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableArray;
@@ -582,13 +583,16 @@ public class RNReactNativeGetMusicFilesModule extends ReactContextBaseJavaModule
         WritableArray jsonArray = new WritableNativeArray();
         MediaMetadataRetriever mmr = new MediaMetadataRetriever();
         try {
-            if (options.hasKey("albumId") || options.hasKey("artistId")) {
+            if (options.hasKey("albumId") || options.hasKey("artistId") || options.hasKey("genreId")) {
                 String selection = "is_music != 0";
                 if (options.hasKey("albumId")) {
                     selection = selection + " and album_id = " + options.getString("albumId");
                 }
                 if (options.hasKey("artistId")) {
                     selection = selection + " and artist_id = " + options.getString("artistId");
+                }
+                if (options.hasKey("genreId")) {
+                    selection = selection + " and genre_id = " + options.getString("genreId");
                 }
 
                 Cursor cursor = musicResolver.query(musicUri, null, selection, null, null);
@@ -717,6 +721,47 @@ public class RNReactNativeGetMusicFilesModule extends ReactContextBaseJavaModule
         }
 
     }
+
+    // @ReactMethod
+    // public void updateGenre(ReadableMap options, final Callback successCallback, final Callback errorCallback) {
+    //     if (options.hasKey("name") && options.hasKey("id")) {
+    //         String genreID = options.getString("id");
+    //         String name = options.getString("name");
+    //         Uri uri = MediaStore.Audio.Genres.Members.getContentUri("external", Long.parseLong(genreID));
+            
+    //         try {
+    //             ContentResolver resolver = getCurrentActivity().getContentResolver();
+    //             ContentValues values = new ContentValues();
+    //             values.put(MediaStore.Audio.Media.IS_PENDING, 1);
+    //             resolver.update(uri, values, null, null);
+
+    //             values.clear();
+    //             values.put(MediaStore.Audio.Media.IS_PENDING, 0);
+    //             values.put(MediaStore.Audio.Genres.NAME, name);
+    //             String whereGenre = MediaStore.Audio.Genres.Members.AUDIO_ID + "=?";
+    //             String[] whereVal = { genreID };
+
+    //             Integer rows = resolver.update(uri, values, whereGenre, whereVal);
+    //             // resolver.insert(MediaStore.Audio.Genres.EXTERNAL_CONTENT_URI, values);
+    //             WritableArray jsonArray = new WritableNativeArray();
+    //             WritableMap result = new WritableNativeMap();
+    //             result.putBoolean("isSuccess", true);
+    //             jsonArray.pushMap(result);
+    //             successCallback.invoke(jsonArray);
+    //         } catch (RuntimeException e) {
+    //             errorCallback.invoke(e.toString());
+    //         } catch (Exception e) {
+    //             errorCallback.invoke(e.getMessage());
+    //         } finally {
+    //         }
+    //     } else {
+    //         WritableArray jsonArray = new WritableNativeArray();
+    //         WritableMap result = new WritableNativeMap();
+    //         result.putBoolean("isSuccess", false);
+    //         jsonArray.pushMap(result);
+    //         successCallback.invoke(jsonArray);
+    //     }
+    // }
 
     private void sendEvent(ReactContext reactContext,
                            String eventName,
