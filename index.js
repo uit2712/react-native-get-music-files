@@ -27,178 +27,138 @@
  * @property {string} id
  */
 
+/**
+ * @typedef {Object} Genre
+ * @property {string} id
+ * @property {string} name
+ * @property {string} numberOfSongs
+ */
+
 import { NativeModules, Platform } from "react-native";
 
 const { RNAndroidStore, RNReactNativeGetMusicFiles } = NativeModules;
- /**
-  * @class RNAndroidAudioStore
-  */
- export const RNAndroidAudioStore = {
-     /**
-      * @member
-      * @function
-      * @async
-      * @param {Object} options
-      * @param {boolean} [options.blured]
-      * @param {boolean} [options.artist]
-      * @param {boolean} [options.duration]
-      * @param {boolean} [options.title]
-      * @param {boolean} [options.id]
-      * @param {string} [options.coverFolder]
-      * @param {boolean} [options.cover]
-      * @param {number} [options.coverResizeRatio]
-      * @param {boolean} [options.icon]
-      * @param {number} [options.iconSize]
-      * @param {number} [options.coverSize]
-      * @param {boolean} [options.genre]
-      * @param {boolean} [options.album]
-      * @param {number} [options.batchNumber]
-      * @param {number} [options.minimumSongDuration]
-      * @param {number} [options.delay]
-      * @param {string} [options.displayName]
-      * @param {boolean} [options.isDownload]
-      */
-     getAll(options) {
-         return new Promise((resolve, reject) => {
-             if (Platform.OS === "android") {
-                 RNAndroidStore.getAll(
-                     options,
-                     tracks => {
-                         resolve(tracks);
-                     },
-                     error => {
-                         resolve(error);
-                     }
-                 );
-             }
-         });
-     },
- 
-     /**
-      * @function
-      * @async
-      * @param {Object} options
-      * @param {string} options.songUri
-      * @param {string} [options.coverFolder]
-      * @param {boolean} [options.cover]
-      * @param {number} [options.coverResizeRatio]
-      * @param {boolean} [options.icon]
-      * @param {number} [options.iconSize]
-      * @param {number} [options.coverSize]
-      * @param {boolean} [options.blured]
-      * @returns {Promise<Array<Song>>}
-      */
-     getSongByPath(options) {
-         return new Promise((resolve, reject) => {
-             if (Platform.OS === "android") {
-                 RNAndroidStore.getSongByPath(
-                     options,
-                     tracks => {
-                         resolve(tracks);
-                     },
-                     error => {
-                         resolve(error);
-                     }
-                 );
-             }
-         });
-     },
- 
-     /**
-      * @function
-      * @async
-      * @param {Object} options
-      * @param {string} [options.artist]
-      * @returns {Promise<Array<Album>>}
-      */
- 
-     getAlbums(options = {}) {
-         return new Promise((resolve, reject) => {
-             if (Platform.OS === "android") {
-                 RNAndroidStore.getAlbums(
-                     options,
-                     albums => {
-                         resolve(albums);
-                     },
-                     error => {
-                         resolve(error);
-                     }
-                 );
-             }
-         });
-     },
- 
-     /**
-      * @function
-      * @async
-      * @param {Object} options
-      * @param {string} [options.artist]
-      * @param {string} [options.album]
-      * @returns {Promise<Array<Song>>}
-      */
-     getSongs(options = {}) {
-         return new Promise((resolve, reject) => {
-             if (Platform.OS === "android") {
-                 RNAndroidStore.getSong(
-                     options,
-                     albums => {
-                         resolve(albums);
-                     },
-                     error => {
-                         resolve(error);
-                     }
-                 );
-             }
-         });
-     },
- 
-     /**
-      * @async
-      * @function
-      * @param {Object} options
-      * @param {string} options.searchParam
-      * @returns {Promise<Array<Song>>}
-      */
-     search(options = {}) {
-         return new Promise((resolve, reject) => {
-             if (Platform.OS === "android") {
-                 RNAndroidStore.search(
-                     options,
-                     results => {
-                         resolve(results);
-                     },
-                     error => {
-                         resolve(error);
-                     }
-                 );
-             }
-         });
-     },
- 
-     /**
-      * @async
-      * @param {Object} options
-      * @param {string} [options.genre]
-      * @returns {Promise<Array<Song>>} -- in case of options === {} returns Promise<Array<String>>
-      */
-     getSongsByGenres(options = {}) {
-         return new Promise((resolve, reject) => {
-             if (Platform.OS === "android") {
-                 RNAndroidStore.getGenres(
-                     options,
-                     results => {
-                         resolve(results);
-                     },
-                     error => {
-                         resolve(error);
-                     }
-                 );
-             }
-         });
-     }
- };
- 
- const MusicFiles = {
+  /**
+   * @class RNAndroidAudioStore
+   */
+export const RNAndroidAudioStore = {
+    /**
+     * @member
+     * @function
+     * @async
+     * @param {Object} options
+     * @param {boolean} [options.blured]
+     * @param {boolean} [options.artist]
+     * @param {boolean} [options.duration]
+     * @param {boolean} [options.title]
+     * @param {boolean} [options.id]
+     * @param {string} [options.coverFolder]
+     * @param {boolean} [options.cover]
+     * @param {number} [options.coverResizeRatio]
+     * @param {boolean} [options.icon]
+     * @param {number} [options.iconSize]
+     * @param {number} [options.coverSize]
+     * @param {boolean} [options.genre]
+     * @param {boolean} [options.album]
+     * @param {number} [options.batchNumber]
+     * @param {number} [options.minimumSongDuration]
+     * @param {number} [options.delay]
+     * @param {string} [options.displayName]
+     * @param {boolean} [options.isDownload]
+     */
+    getAll(options) {
+        return new Promise((resolve, reject) => {
+            if (Platform.OS === "android") {
+                RNAndroidStore.getAll(
+                    options,
+                    tracks => {
+                        resolve(tracks);
+                    },
+                    error => {
+                        resolve(error);
+                    }
+                );
+            }
+        });
+    },
+
+    /**
+     * @function
+     * @async
+     * @param {Object} options
+     * @param {string} options.songUri
+     * @param {string} [options.coverFolder]
+     * @param {boolean} [options.cover]
+     * @param {number} [options.coverResizeRatio]
+     * @param {boolean} [options.icon]
+     * @param {number} [options.iconSize]
+     * @param {number} [options.coverSize]
+     * @param {boolean} [options.blured]
+     * @returns {Promise<Array<Song>>}
+     */
+    getSongByPath(options) {
+        return new Promise((resolve, reject) => {
+            if (Platform.OS === "android") {
+                RNAndroidStore.getSongByPath(
+                    options,
+                    tracks => {
+                        resolve(tracks);
+                    },
+                    error => {
+                        resolve(error);
+                    }
+                );
+            }
+        });
+    },
+    /**
+     * @function
+     * @async
+     * @param {Object} options
+     * @param {string} [options.artist]
+     * @param {string} [options.album]
+     * @returns {Promise<Array<Song>>}
+     */
+    getSongs(options = {}) {
+        return new Promise((resolve, reject) => {
+            if (Platform.OS === "android") {
+                RNAndroidStore.getSong(
+                    options,
+                    albums => {
+                        resolve(albums);
+                    },
+                    error => {
+                        resolve(error);
+                    }
+                );
+            }
+        });
+    },
+
+    /**
+     * @async
+     * @function
+     * @param {Object} options
+     * @param {string} options.searchParam
+     * @returns {Promise<Array<Song>>}
+     */
+    search(options = {}) {
+        return new Promise((resolve, reject) => {
+            if (Platform.OS === "android") {
+                RNAndroidStore.search(
+                    options,
+                    results => {
+                        resolve(results);
+                    },
+                    error => {
+                        resolve(error);
+                    }
+                );
+            }
+        });
+    },
+};
+
+const MusicFiles = {
     /** For both Android and IOS */
     getAll(options) {
         return new Promise((resolve, reject) => {
@@ -249,7 +209,7 @@ const { RNAndroidStore, RNReactNativeGetMusicFiles } = NativeModules;
      * @param {Object} options
      * @returns {Promise<Array<Artist>>}
      */
- 
+
     getArtists(options = {}) {
         return new Promise((resolve, reject) => {
             if (Platform.OS === "android") {
@@ -272,7 +232,7 @@ const { RNAndroidStore, RNReactNativeGetMusicFiles } = NativeModules;
      * @param {string} [options.artist]
      * @returns {Promise<Array<Album>>}
      */
- 
+
     getAlbums(options = {}) {
         return new Promise((resolve, reject) => {
             if (Platform.OS === "android") {
@@ -295,7 +255,7 @@ const { RNAndroidStore, RNReactNativeGetMusicFiles } = NativeModules;
      * @param {string} [options.artist]
      * @returns {Promise<Array<Album>>}
      */
- 
+
     getPlaylists(options = {}) {
         return new Promise((resolve, reject) => {
             if (Platform.OS === "android") {
@@ -320,7 +280,7 @@ const { RNAndroidStore, RNReactNativeGetMusicFiles } = NativeModules;
      * @param {string} [options.albumId]
      * @returns {Promise<Array<Album>>}
      */
-     getListSongs(options) {
+    getListSongs(options) {
         return new Promise((resolve, reject) => {
             if (Platform.OS === "android") {
                 RNReactNativeGetMusicFiles.getListSongs(options, (tracks) => {
@@ -331,6 +291,28 @@ const { RNAndroidStore, RNReactNativeGetMusicFiles } = NativeModules;
             }
         });
     },
- }
- 
- export default MusicFiles;
+    /**
+     * @function
+     * @async
+     * @param {Object} options
+     * @param {string} [options.genre]
+     * @returns {Promise<Array<Genre>>}
+     */
+    getGenres(options = {}) {
+        return new Promise((resolve, reject) => {
+            if (Platform.OS === "android") {
+                RNReactNativeGetMusicFiles.getGenres(
+                    options,
+                    genres => {
+                        resolve(genres);
+                    },
+                    error => {
+                        resolve(error);
+                    }
+                );
+            }
+        });
+    },
+}
+
+export default MusicFiles;

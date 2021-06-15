@@ -617,6 +617,107 @@ public class RNReactNativeGetMusicFilesModule extends ReactContextBaseJavaModule
         
     }
 
+    @ReactMethod
+    public void getGenres(ReadableMap options, final Callback successCallback, final Callback errorCallback) {
+
+        WritableArray jsonArray = new WritableNativeArray();
+        Cursor genrecursor;
+        Cursor tempcursor;
+        long genreId;
+        String GenreName;
+        if (options.hasKey("genre")) {
+            int index;
+            Uri uri;
+            String[] genreProjection = { MediaStore.Audio.Genres.NAME, MediaStore.Audio.Genres._ID };
+            String[] projection = new String[] { MediaStore.Audio.Media.TITLE, MediaStore.Audio.Media.ARTIST,
+                    MediaStore.Audio.Media.ALBUM, MediaStore.Audio.Media.DURATION, MediaStore.Audio.Media.DATA,
+                    MediaStore.Audio.Media._ID };
+            String Selection = MediaStore.Audio.Genres.NAME + " Like ?";
+            
+            try {
+                genrecursor = getCurrentActivity().getContentResolver().query(MediaStore.Audio.Genres.EXTERNAL_CONTENT_URI,
+                        genreProjection, Selection, new String[] { "%"+options.getString("genre")+"%" }, null);
+                if (genrecursor != null && genrecursor.getCount() > 0) {
+                    genrecursor.moveToFirst();
+
+                    do {
+                        GenreName = genrecursor.getString(0);
+                        Log.e("Tag-Genre name", GenreName);
+                        index = genrecursor.getColumnIndexOrThrow(MediaStore.Audio.Genres._ID);
+                        genreId = Long.parseLong(genrecursor.getString(index));
+                        uri = MediaStore.Audio.Genres.Members.getContentUri("external", genreId);
+
+                        tempcursor = getCurrentActivity().getContentResolver().query(uri, projection, null, null, null);
+                        if (tempcursor.moveToFirst()) {
+
+                            do {
+                                WritableMap item = new WritableNativeMap();
+                                if (GenreName != null) {
+                                    item.putString("genre", GenreName);
+                                    item.putString("title", String.valueOf(tempcursor.getString(0)));
+                                    item.putString("artist", String.valueOf(tempcursor.getString(1)));
+                                    item.putString("album", String.valueOf(tempcursor.getString(2)));
+                                    item.putDouble("duration", tempcursor.getInt(3));
+                                    item.putString("path", String.valueOf(tempcursor.getString(4)));
+                                    item.putString("id", String.valueOf(tempcursor.getString(5)));
+                                    jsonArray.pushMap(item);
+                                }
+                            } while (tempcursor.moveToNext());
+                        }
+                        tempcursor.close();
+                    } while (genrecursor.moveToNext());
+                } else {
+                    String msg = "cursor is either null or empty ";
+                    Log.e("Musica", msg);
+                }
+                Log.e("MusicaGenres", String.valueOf(jsonArray));
+                genrecursor.close();
+                successCallback.invoke(jsonArray);
+            } catch (RuntimeException e) {
+                errorCallback.invoke(e.toString());
+            } catch (Exception e) {
+                errorCallback.invoke(e.getMessage());
+            } finally {
+            }
+        } else {
+            try {
+                String[] projection = new String[] { MediaStore.Audio.Genres.NAME, MediaStore.Audio.Genres._ID };
+                genrecursor = getCurrentActivity().getContentResolver()
+                        .query(MediaStore.Audio.Genres.EXTERNAL_CONTENT_URI, projection, null, null, null);
+                if (genrecursor != null && genrecursor.getCount() > 0) {
+                    genrecursor.moveToFirst();
+                    do {
+                        WritableMap item = new WritableNativeMap();
+                        GenreName = genrecursor.getString(0);
+                        genreId = genrecursor.getLong(1);
+                        if (GenreName != null) {
+                            item.putString("name", GenreName);
+                            item.putString("id", genrecursor.getString(1));
+                            tempcursor = getCurrentActivity().getContentResolver().query(MediaStore.Audio.Genres.Members.getContentUri("external", genreId), null, null, null, null);
+                            if (tempcursor != null) {
+                                item.putDouble("numberOfSongs", tempcursor.getCount());
+                            }
+                            tempcursor.close();
+                            jsonArray.pushMap(item);
+                        }
+                    } while (genrecursor.moveToNext());
+                } else {
+                    String msg = "cursor is either null or empty ";
+                    Log.e("Musica", msg);
+                }
+                Log.e("MusicaGenre", String.valueOf(jsonArray));
+                genrecursor.close();
+                successCallback.invoke(jsonArray);
+            } catch (RuntimeException e) {
+                errorCallback.invoke(e.toString());
+            } catch (Exception e) {
+                errorCallback.invoke(e.getMessage());
+            } finally {
+            }
+        }
+
+    }
+
     private void sendEvent(ReactContext reactContext,
                            String eventName,
                            @Nullable WritableMap params) {

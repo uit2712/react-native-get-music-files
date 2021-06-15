@@ -20,7 +20,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import android.util.Log;
 
 import com.facebook.react.bridge.ReadableMap;
@@ -176,7 +176,7 @@ public class RNAndroidStore extends ReactContextBaseJavaModule {
                     item.putString("album", String.valueOf(cursor.getString(1)));
                     item.putString("author", String.valueOf(cursor.getString(2)));
                     item.putString("cover", String.valueOf(cursor.getString(3)));
-                    item.putString("numberOfSongs", String.valueOf(cursor.getString(4)));
+                    item.putDouble("numberOfSongs", cursor.getInt(4)));
                     jsonArray.pushMap(item);
                 } while (cursor.moveToNext());
             } else {
@@ -247,80 +247,6 @@ public class RNAndroidStore extends ReactContextBaseJavaModule {
 
     }
 
-    @ReactMethod
-    public void getGenres(ReadableMap options, final Callback successCallback, final Callback errorCallback) {
-
-        WritableArray jsonArray = new WritableNativeArray();
-        if (options.hasKey("genre")) {
-            int index;
-            String GenreName;
-            long genreId;
-            Uri uri;
-            Cursor genrecursor;
-            Cursor tempcursor;
-            String[] genreProjection = { MediaStore.Audio.Genres.NAME, MediaStore.Audio.Genres._ID };
-            String[] projection = new String[] { MediaStore.Audio.Media.TITLE, MediaStore.Audio.Media.ARTIST,
-                    MediaStore.Audio.Media.ALBUM, MediaStore.Audio.Media.DURATION, MediaStore.Audio.Media.DATA,
-                    MediaStore.Audio.Media._ID };
-            String Selection = MediaStore.Audio.Genres.NAME + " Like ?";
-            genrecursor = getCurrentActivity().getContentResolver().query(MediaStore.Audio.Genres.EXTERNAL_CONTENT_URI,
-                    genreProjection, Selection, new String[] { "%"+options.getString("genre")+"%" }, null);
-            if (genrecursor != null && genrecursor.getCount() > 0) {
-                genrecursor.moveToFirst();
-
-                do {
-                    GenreName = String.valueOf(genrecursor.getString(0));
-                    Log.e("Tag-Genre name", GenreName);
-                    index = genrecursor.getColumnIndexOrThrow(MediaStore.Audio.Genres._ID);
-                    genreId = Long.parseLong(genrecursor.getString(index));
-                    uri = MediaStore.Audio.Genres.Members.getContentUri("external", genreId);
-
-                    tempcursor = getCurrentActivity().getContentResolver().query(uri, projection, null, null, null);
-                    if (tempcursor.moveToFirst()) {
-
-                        do {
-                            WritableMap item = new WritableNativeMap();
-                            item.putString("genre", GenreName);
-                            item.putString("title", String.valueOf(tempcursor.getString(0)));
-                            item.putString("artist", String.valueOf(tempcursor.getString(1)));
-                            item.putString("album", String.valueOf(tempcursor.getString(2)));
-                            item.putString("duration", String.valueOf(tempcursor.getString(3)));
-                            item.putString("path", String.valueOf(tempcursor.getString(4)));
-                            item.putString("id", String.valueOf(tempcursor.getString(5)));
-                            jsonArray.pushMap(item);
-                        } while (tempcursor.moveToNext());
-                    }
-                    tempcursor.close();
-                } while (genrecursor.moveToNext());
-            } else {
-                String msg = "cursor is either null or empty ";
-                Log.e("Musica", msg);
-            }
-            Log.e("MusicaGenres", String.valueOf(jsonArray));
-            genrecursor.close();
-            successCallback.invoke(jsonArray);
-        } else {
-            String[] projection = new String[] { MediaStore.Audio.Genres.NAME };
-            Cursor cursor = getCurrentActivity().getContentResolver()
-                    .query(MediaStore.Audio.Genres.EXTERNAL_CONTENT_URI, projection, null, null, null);
-            if (cursor != null && cursor.getCount() > 0) {
-                cursor.moveToFirst();
-                do {
-                    WritableMap item = new WritableNativeMap();
-                    item.putString("name", String.valueOf(cursor.getString(0)));
-                    jsonArray.pushMap(item);
-                } while (cursor.moveToNext());
-            } else {
-                String msg = "cursor is either null or empty ";
-                Log.e("Musica", msg);
-            }
-            Log.e("MusicaGenre", String.valueOf(jsonArray));
-            cursor.close();
-            successCallback.invoke(jsonArray);
-        }
-
-    }
-
     ///////
     @ReactMethod
     public void search(ReadableMap options, final Callback successCallback, final Callback errorCallback) {
@@ -355,6 +281,128 @@ public class RNAndroidStore extends ReactContextBaseJavaModule {
         Log.e("MusicaAlbums", String.valueOf(jsonArray));
         cursor.close();
         successCallback.invoke(jsonArray);
+    }
+
+    @ReactMethod
+    public void getSong(ReadableMap options, final Callback successCallback, final Callback errorCallback) {
+
+        WritableArray jsonArray = new WritableNativeArray();
+
+        if (options.hasKey("artist") && !options.hasKey("album")) {
+            String[] projection = new String[] { MediaStore.Audio.Media.TITLE, MediaStore.Audio.Media.ARTIST,
+                    MediaStore.Audio.Media.ALBUM, MediaStore.Audio.Media.DURATION, MediaStore.Audio.Media.DATA,
+                    MediaStore.Audio.Media._ID };
+
+            Cursor cursor = getCurrentActivity().getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                    projection, MediaStore.Audio.Albums.ARTIST + " Like ?",
+                    new String[] { "%" + options.getString("artist") + "%" }, null);
+            if (cursor != null && cursor.getCount() > 0) {
+                cursor.moveToFirst();
+                do {
+                    WritableMap item = new WritableNativeMap();
+                    item.putString("title", String.valueOf(cursor.getString(0)));
+                    item.putString("artist", String.valueOf(cursor.getString(1)));
+                    item.putString("album", String.valueOf(cursor.getString(2)));
+                    item.putString("duration", String.valueOf(cursor.getString(3)));
+                    item.putString("path", String.valueOf(cursor.getString(4)));
+                    item.putString("id", String.valueOf(cursor.getString(5)));
+                    jsonArray.pushMap(item);
+                } while (cursor.moveToNext());
+            } else {
+                String msg = "cursor is either null or empty ";
+                Log.e("Musica", msg);
+            }
+            Log.e("MusicaAlbums", String.valueOf(jsonArray));
+            cursor.close();
+            successCallback.invoke(jsonArray);
+        }
+
+        if (!options.hasKey("artist") && options.hasKey("album")) {
+            String[] projection = new String[] { MediaStore.Audio.Media.TITLE, MediaStore.Audio.Media.ARTIST,
+                    MediaStore.Audio.Media.ALBUM, MediaStore.Audio.Media.DURATION, MediaStore.Audio.Media.DATA,
+                    MediaStore.Audio.Media._ID };
+
+            Cursor cursor = getCurrentActivity().getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                    projection, MediaStore.Audio.Albums.ALBUM + " Like ?", new String[] { "%" + options.getString("album") + "%" },
+                    null);
+            if (cursor != null && cursor.getCount() > 0) {
+                cursor.moveToFirst();
+                do {
+                    WritableMap item = new WritableNativeMap();
+                    item.putString("title", String.valueOf(cursor.getString(0)));
+                    item.putString("artist", String.valueOf(cursor.getString(1)));
+                    item.putString("album", String.valueOf(cursor.getString(2)));
+                    item.putString("duration", String.valueOf(cursor.getString(3)));
+                    item.putString("path", String.valueOf(cursor.getString(4)));
+                    item.putString("id", String.valueOf(cursor.getString(5)));
+                    jsonArray.pushMap(item);
+                } while (cursor.moveToNext());
+            } else {
+                String msg = "cursor is either null or empty ";
+                Log.e("Musica", msg);
+            }
+            Log.e("MusicaAlbums", String.valueOf(jsonArray));
+            cursor.close();
+            successCallback.invoke(jsonArray);
+        }
+
+        if (!options.hasKey("artist") && !options.hasKey("album")) {
+            String[] projection = new String[] { MediaStore.Audio.Media.TITLE, MediaStore.Audio.Media.ARTIST,
+                    MediaStore.Audio.Media.ALBUM, MediaStore.Audio.Media.DURATION, MediaStore.Audio.Media.DATA,
+                    MediaStore.Audio.Media._ID };
+
+            Cursor cursor = getCurrentActivity().getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                    projection, MediaStore.Audio.Media.IS_MUSIC + "!= 0", null, null);
+            if (cursor != null && cursor.getCount() > 0) {
+                cursor.moveToFirst();
+                do {
+                    WritableMap item = new WritableNativeMap();
+                    item.putString("title", String.valueOf(cursor.getString(0)));
+                    item.putString("artist", String.valueOf(cursor.getString(1)));
+                    item.putString("album", String.valueOf(cursor.getString(2)));
+                    item.putString("duration", String.valueOf(cursor.getString(3)));
+                    item.putString("path", String.valueOf(cursor.getString(4)));
+                    item.putString("id", String.valueOf(cursor.getString(5)));
+                    jsonArray.pushMap(item);
+                } while (cursor.moveToNext());
+            } else {
+                String msg = "cursor is either null or empty ";
+                Log.e("Musica", msg);
+            }
+            Log.e("MusicaAlbums", String.valueOf(jsonArray));
+            cursor.close();
+            successCallback.invoke(jsonArray);
+        }
+
+        if (options.hasKey("artist") && options.hasKey("album")) {
+            String[] projection = new String[] { MediaStore.Audio.Media.TITLE, MediaStore.Audio.Media.ARTIST,
+                    MediaStore.Audio.Media.ALBUM, MediaStore.Audio.Media.DURATION, MediaStore.Audio.Media.DATA,
+                    MediaStore.Audio.Media._ID };
+
+            Cursor cursor = getCurrentActivity().getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                    projection,
+                    MediaStore.Audio.Albums.ARTIST + " Like ? AND " + MediaStore.Audio.Albums.ALBUM + " Like ?",
+                    new String[] { "%" + options.getString("artist") + "%", "%" + options.getString("album") + "%"}, null);
+            if (cursor != null && cursor.getCount() > 0) {
+                cursor.moveToFirst();
+                do {
+                    WritableMap item = new WritableNativeMap();
+                    item.putString("title", String.valueOf(cursor.getString(0)));
+                    item.putString("artist", String.valueOf(cursor.getString(1)));
+                    item.putString("album", String.valueOf(cursor.getString(2)));
+                    item.putString("duration", String.valueOf(cursor.getString(3)));
+                    item.putString("path", String.valueOf(cursor.getString(4)));
+                    item.putString("id", String.valueOf(cursor.getString(5)));
+                    jsonArray.pushMap(item);
+                } while (cursor.moveToNext());
+            } else {
+                String msg = "cursor is either null or empty ";
+                Log.e("Musica", msg);
+            }
+            Log.e("MusicaAlbums", String.valueOf(jsonArray));
+            cursor.close();
+            successCallback.invoke(jsonArray);
+        }
     }
 
     ///////
