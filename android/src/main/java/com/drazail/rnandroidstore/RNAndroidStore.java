@@ -176,7 +176,7 @@ public class RNAndroidStore extends ReactContextBaseJavaModule {
                     item.putString("album", String.valueOf(cursor.getString(1)));
                     item.putString("author", String.valueOf(cursor.getString(2)));
                     item.putString("cover", String.valueOf(cursor.getString(3)));
-                    item.putDouble("numberOfSongs", cursor.getInt(4)));
+                    item.putDouble("numberOfSongs", cursor.getInt(4));
                     jsonArray.pushMap(item);
                 } while (cursor.moveToNext());
             } else {
