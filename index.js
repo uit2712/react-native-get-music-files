@@ -37,9 +37,9 @@
 import { NativeModules, Platform } from "react-native";
 
 const { RNAndroidStore, RNReactNativeGetMusicFiles } = NativeModules;
-   /**
-    * @class RNAndroidAudioStore
-    */
+  /**
+   * @class RNAndroidAudioStore
+   */
 export const RNAndroidAudioStore = {
     /**
      * @member
@@ -318,8 +318,7 @@ const MusicFiles = {
      * @async
      * @param {Object} options
      * @param {string} [options.id]
-     * @param {string} [options.artist]
-     * @param {string} [options.album]
+     * @param {string} [options.genre]
      * @returns {Promise<Array<Genre>>}
      */
     updateSong(options = {}) {
@@ -336,7 +335,29 @@ const MusicFiles = {
                 );
             }
         });
+    },
+    /**
+     * @function
+     * @async
+     * @param {Object} options
+     * @param {string} [options.name]
+     * @returns {Promise<Array<Genre>>}
+     */
+    createGenre(options = {}) {
+        return new Promise((resolve, reject) => {
+            if (Platform.OS === "android") {
+                RNReactNativeGetMusicFiles.createGenre(
+                    options,
+                    result => {
+                        resolve(result);
+                    },
+                    error => {
+                        resolve(error);
+                    }
+                );
+            }
+        });
     }
- }
- 
- export default MusicFiles;
+}
+
+export default MusicFiles;

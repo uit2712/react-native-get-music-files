@@ -780,6 +780,37 @@ public class RNReactNativeGetMusicFilesModule extends ReactContextBaseJavaModule
         }
     }
 
+    @ReactMethod
+    public void createGenre(ReadableMap options, final Callback successCallback, final Callback errorCallback) {
+        if (options.hasKey("name")) {
+            String name = options.getString("name");
+            
+            try {
+                ContentResolver resolver = getCurrentActivity().getContentResolver();
+                ContentValues values = new ContentValues();
+                values.put(MediaStore.Audio.Genres.NAME, name);
+
+                Uri newUri = resolver.insert(MediaStore.Audio.Genres.EXTERNAL_CONTENT_URI, values);
+                WritableArray jsonArray = new WritableNativeArray();
+                WritableMap result = new WritableNativeMap();
+                result.putBoolean("isSuccess", true);
+                jsonArray.pushMap(result);
+                successCallback.invoke(jsonArray);
+            } catch (RuntimeException e) {
+                errorCallback.invoke(e.toString());
+            } catch (Exception e) {
+                errorCallback.invoke(e.getMessage());
+            } finally {
+            }
+        } else {
+            WritableArray jsonArray = new WritableNativeArray();
+            WritableMap result = new WritableNativeMap();
+            result.putBoolean("isSuccess", false);
+            jsonArray.pushMap(result);
+            successCallback.invoke(jsonArray);
+        }
+    }
+
     // @ReactMethod
     // public void updateGenre(ReadableMap options, final Callback successCallback, final Callback errorCallback) {
     //     if (options.hasKey("name") && options.hasKey("id")) {
