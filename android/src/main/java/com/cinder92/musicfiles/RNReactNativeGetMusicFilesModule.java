@@ -583,19 +583,13 @@ public class RNReactNativeGetMusicFilesModule extends ReactContextBaseJavaModule
         WritableArray jsonArray = new WritableNativeArray();
         MediaMetadataRetriever mmr = new MediaMetadataRetriever();
         try {
-            if (options.hasKey("albumId") || options.hasKey("artistId") || options.hasKey("genreId")) {
+            if (options.hasKey("albumId") || options.hasKey("artistId")) {
                 String selection = "is_music != 0";
                 if (options.hasKey("albumId")) {
                     selection = selection + " and album_id = " + options.getString("albumId");
                 }
                 if (options.hasKey("artistId")) {
                     selection = selection + " and artist_id = " + options.getString("artistId");
-                }
-                if (options.hasKey("genreId")) {
-                    selection = selection + " and genre_id = " + options.getString("genreId");
-                }
-                if (options.hasKey("genre")) {
-                    selection = selection + " and genre LIKE %" + options.getString("genre") + "%";
                 }
 
                 Cursor cursor = musicResolver.query(musicUri, null, selection, null, null);
@@ -609,10 +603,28 @@ public class RNReactNativeGetMusicFilesModule extends ReactContextBaseJavaModule
                     String msg = "cursor is either null or empty ";
                     Log.e("Musica", msg);
                 }
-                Log.e("MusicaAlbums", String.valueOf(jsonArray));
                 cursor.close();
-                successCallback.invoke(jsonArray);
+            } else {
+                if (options.hasKey("genreId")) {
+                    Long genreID = Long.parseLong(options.getString("genreId"));
+                    Uri uri = MediaStore.Audio.Genres.Members.getContentUri("external", genreID); 
+
+                    Cursor cursor = musicResolver.query(uri, null, null, null, null);
+                    if (cursor != null && cursor.getCount() > 0) {
+                        cursor.moveToFirst();
+                        do {
+                            WritableNativeMap item = getSongsData(cursor, mmr);
+                            jsonArray.pushMap(item);
+                        } while (cursor.moveToNext());
+                    } else {
+                        String msg = "cursor is either null or empty ";
+                        Log.e("Musica", msg);
+                    }
+                    cursor.close();
+                }
             }
+            Log.e("MusicaAlbums", String.valueOf(jsonArray));
+            successCallback.invoke(jsonArray);
         } catch (RuntimeException e) {
             errorCallback.invoke(e.toString());
         } catch (Exception e) {
