@@ -594,6 +594,9 @@ public class RNReactNativeGetMusicFilesModule extends ReactContextBaseJavaModule
                 if (options.hasKey("genreId")) {
                     selection = selection + " and genre_id = " + options.getString("genreId");
                 }
+                if (options.hasKey("genre")) {
+                    selection = selection + " and genre LIKE %" + options.getString("genre") + "%";
+                }
 
                 Cursor cursor = musicResolver.query(musicUri, null, selection, null, null);
                 if (cursor != null && cursor.getCount() > 0) {
@@ -729,16 +732,23 @@ public class RNReactNativeGetMusicFilesModule extends ReactContextBaseJavaModule
             String genre = options.getString("genre");
             String artist = options.getString("artist");
             String album = options.getString("album");
+            String name = options.getString("name");
             try {
                 ContentResolver resolver = getCurrentActivity().getContentResolver();
                 Uri uri = ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, Long.parseLong(id));
                 ContentValues values = new ContentValues();
 
+                if (genre != null) {
+                    values.put(MediaStore.Audio.Genres.NAME, genre);
+                }
                 if (album != null) {
                     values.put(MediaStore.Audio.Media.ALBUM, album);
                 }
                 if (artist != null) {
                     values.put(MediaStore.Audio.Media.ARTIST, artist);
+                }
+                if (name != null) {
+                    values.put(MediaStore.Audio.Media.TITLE, name);
                 }
                 resolver.update(uri, values, null, null);
 
