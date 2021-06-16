@@ -722,6 +722,42 @@ public class RNReactNativeGetMusicFilesModule extends ReactContextBaseJavaModule
 
     }
 
+    @ReactMethod
+    public void updateSong(ReadableMap options, final Callback successCallback, final Callback errorCallback) {
+        if (options.hasKey("id")) {
+            String id = options.getString("id");
+            String genre = options.getString("genre");
+            String artist = options.getString("artist");
+            String album = options.getString("album");
+            try {
+                ContentResolver resolver = getCurrentActivity().getContentResolver();
+                Uri uri = ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, Long.parseLong(id));
+                ContentValues values = new ContentValues();
+
+                if (album != null) {
+                    values.put(MediaStore.Audio.Media.ALBUM, album);
+                }
+                if (artist != null) {
+                    values.put(MediaStore.Audio.Media.ARTIST, artist);
+                }
+                resolver.update(uri, values, null, null);
+
+                WritableArray jsonArray = new WritableNativeArray();
+                WritableMap result = new WritableNativeMap();
+                result.putBoolean("isSuccess", true);
+                jsonArray.pushMap(result);
+                successCallback.invoke(jsonArray);
+            } catch (RuntimeException e) {
+                errorCallback.invoke(e.toString());
+            } catch (Exception e) {
+                errorCallback.invoke(e.getMessage());
+            } finally {
+            }
+        } else {
+            errorCallback.invoke("Invalid parameters");
+        }
+    }
+
     // @ReactMethod
     // public void updateGenre(ReadableMap options, final Callback successCallback, final Callback errorCallback) {
     //     if (options.hasKey("name") && options.hasKey("id")) {
